@@ -14,20 +14,18 @@ class CoreDataImporter {
         self.context = context
     }
     
-    func sync(entries: [EntryRepresentation], completion: @escaping (Error?) -> Void = { _ in }) {
+    func sync(entryRep: EntryRepresentation, completion: @escaping (Error?) -> Void = { _ in }) {
         
         print("started syncing")
         self.context.perform {
-            for entryRep in entries {
-                guard let identifier = entryRep.identifier else { continue }
-                
-                // pauses here
-                let entry = self.fetchSingleEntryFromPersistentStore(with: identifier, in: self.context)
-                if let entry = entry, entry != entryRep {
-                    self.update(entry: entry, with: entryRep)
-                } else if entry == nil {
-                    _ = Entry(entryRepresentation: entryRep, context: self.context)
-                }
+            guard let identifier = entryRep.identifier else { completion(NSError()); return }
+            
+            // pauses here
+            let entry = self.fetchSingleEntryFromPersistentStore(with: identifier, in: self.context)
+            if let entry = entry, entry != entryRep {
+                self.update(entry: entry, with: entryRep)
+            } else if entry == nil {
+                _ = Entry(entryRepresentation: entryRep, context: self.context)
             }
             print("finished syncing")
             completion(nil)

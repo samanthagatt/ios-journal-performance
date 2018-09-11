@@ -124,16 +124,16 @@ class EntryController {
             if error != nil { return }
             guard let representations = representations else { return }
             let moc = CoreDataStack.shared.container.newBackgroundContext()
-            self.updateEntries(with: representations, in: moc, completion: completion)
+            self.updateEntry(with: representations, in: moc, completion: completion)
         }
     }
     
-    private func updateEntries(with representations: [EntryRepresentation],
+    private func updateEntry(with representation: EntryRepresentation,
                                in context: NSManagedObjectContext,
                                completion: @escaping ((Error?) -> Void) = { _ in }) {
         
         importer = CoreDataImporter(context: context)
-        importer?.sync(entries: representations) { (error) in
+        importer?.sync(entryRep: representation) { (error) in
             if let error = error {
                 NSLog("Error syncing entries from server: \(error)")
                 completion(error)

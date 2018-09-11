@@ -30,7 +30,22 @@ class EntriesTableViewController: UITableViewController, NSFetchedResultsControl
     // MARK: - Actions
     
     @IBAction func refresh(_ sender: Any?) {
+        
         refreshControl?.beginRefreshing()
+        entryController.fetchEntriesFromServer { (entryReps, error) in
+            if let error = error {
+                NSLog("Error fetching entries from server \(error)")
+                return
+            }
+            
+            guard let entryReps = entryReps else { NSLog("Error, no entries returned from fetch request"); return }
+            let sadEntryReps = entryReps.filter { $0.mood == "☹️" }
+            let mediumEntryReps = entryReps.filter { $0.mood == "😐" }
+            let happyEntryReps = entryReps.filter { $0.mood == "🙂" }
+            
+            self.entryReps = [sadEntryReps, mediumEntryReps, happyEntryReps]
+        }
+        
         entryController.refreshEntriesFromServer { error in
             if let error = error {
                 NSLog("Error refreshing changes from server: \(error)")
@@ -55,7 +70,16 @@ class EntriesTableViewController: UITableViewController, NSFetchedResultsControl
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+        switch section {
+        case 0:
+            return entryReps?[0].count ?? 0
+        case 1:
+            return entryReps?[1].count ?? 0
+        case 2:
+            return entryReps?[2].count ?? 0
+        default:
+            return 0
+        }
     }
     
     
@@ -149,6 +173,7 @@ class EntriesTableViewController: UITableViewController, NSFetchedResultsControl
     // MARK: - Properties
     
     let entryController = EntryController()
+    var entryReps: [[EntryRepresentation]]?
     
     lazy var fetchedResultsController: NSFetchedResultsController<Entry> = {
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
