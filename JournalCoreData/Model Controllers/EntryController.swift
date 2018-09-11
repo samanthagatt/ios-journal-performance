@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-let baseURL = URL(string: "https://journal-performance.firebaseio.com/")!
+let baseURL = URL(string: "https://journal-performance2.firebaseio.com/")!
 
 class EntryController {
         

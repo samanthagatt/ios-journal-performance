@@ -40,15 +40,15 @@ class CoreDataImporter {
             }
             self.context.perform {
                 for entryRep in entries {
-                    guard let identifier = entryRep.identifier else { completion(NSError()); return }
+                    guard let identifier = entryRep.identifier else { continue }
                     let entry = entriesDict[identifier]
                     if let entry = entry, entry != entryRep {
                         self.update(entry: entry, with: entryRep)
                     } else if entry == nil {
                         _ = Entry(entryRepresentation: entryRep, context: self.context)
                     }
-                    completion(nil)
                 }
+                completion(nil)
             }
         }
     }
