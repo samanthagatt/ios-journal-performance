@@ -16,10 +16,12 @@ class CoreDataImporter {
     
     func sync(entries: [EntryRepresentation], completion: @escaping (Error?) -> Void = { _ in }) {
         
+        print("started syncing")
         self.context.perform {
             for entryRep in entries {
                 guard let identifier = entryRep.identifier else { continue }
                 
+                // pauses here
                 let entry = self.fetchSingleEntryFromPersistentStore(with: identifier, in: self.context)
                 if let entry = entry, entry != entryRep {
                     self.update(entry: entry, with: entryRep)
@@ -27,6 +29,7 @@ class CoreDataImporter {
                     _ = Entry(entryRepresentation: entryRep, context: self.context)
                 }
             }
+            print("finished syncing")
             completion(nil)
         }
     }
@@ -48,6 +51,8 @@ class CoreDataImporter {
         
         var result: Entry? = nil
         do {
+            // spends too much time here
+            // instead should it fetch a single entry from core data only when the cell is going to be displayed (and stopped if it's been scrolled passed)?
             result = try context.fetch(fetchRequest).first
         } catch {
             NSLog("Error fetching single entry: \(error)")
